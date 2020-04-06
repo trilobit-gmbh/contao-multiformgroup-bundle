@@ -10,7 +10,7 @@
 \Contao\CoreBundle\DataContainer\PaletteManipulator::create()
     ->addLegend('multi_form_group_legend', 'expert_legend', \Contao\CoreBundle\DataContainer\PaletteManipulator::POSITION_BEFORE, true)
     ->addField(['multi_form_group'], 'multi_form_group_legend', \Contao\CoreBundle\DataContainer\PaletteManipulator::POSITION_APPEND)
-    ->applyToPalette('fieldsetfsStart', 'tl_form_field')
+    ->applyToPalette('fieldsetStart', 'tl_form_field')
 ;
 
 $GLOBALS['TL_DCA']['tl_form_field']['fields']['multi_form_group'] = [

@@ -30,6 +30,8 @@ class FormCompiler
         $indexFrom = 0;
         $level = 0;
 
+        $defaultFieldCount = count(array_values($fields));
+
         foreach (array_values($fields) as $index => $fieldModel) {
             if (('fieldset' === $fieldModel->type && 'fsStart' === $fieldModel->fsType) || 'fieldsetStart' === $fieldModel->type) {
                 // ignore fieldsets in front of and after the multi form groups
@@ -56,8 +58,7 @@ class FormCompiler
                     // remove existing fields and replace them with the new fields
                     array_splice($fields, $offset + $indexFrom, $length, $multipliedFields);
 
-                    // todo: check if offset is correct (test case: multiple multi-form-groups on the same form)
-                    $offset += \count($multipliedFields);
+                    $offset += count(array_values($fields)) - $defaultFieldCount;
                 }
 
                 continue;
@@ -90,6 +91,7 @@ class FormCompiler
                 // add suffix
                 $multipliedField->name = $this->getSuffixedIdentifier($field->name, (string) $i);
                 $multipliedField->id = $this->getSuffixedIdentifier($field->name, (string) $i);
+                $multipliedField->baseId = $field->id;
 
                 $multipliedFields[] = $multipliedField;
             }
@@ -107,9 +109,6 @@ class FormCompiler
      */
     private function getGroupCount($groupId)
     {
-        //$mandatoryFields = array_filter($fields, function ($field) {
-        //    return $field->mandatory;
-        //});
         $size = (int) Input::post('multi_form_size__'.$groupId);
 
         return max($size, 1);

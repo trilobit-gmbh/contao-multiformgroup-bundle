@@ -9,7 +9,9 @@ declare(strict_types=1);
  * @link       http://github.com/trilobit-gmbh/contao-multiformgroup-bundle
  */
 
-$GLOBALS['TL_HOOKS']['compileFormFields'][] = [Trilobit\ContaoMultiFormGroup\Form\FormCompiler::class, 'onCompileFormFields'];
+use Trilobit\ContaoMultiFormGroup\Form\FormCompiler;
+
+$GLOBALS['TL_HOOKS']['compileFormFields'][] = [FormCompiler::class, 'onCompileFormFields'];
 
 if ('FE' === TL_MODE) {
     \Contao\System::loadLanguageFile('default');

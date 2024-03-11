@@ -18,54 +18,55 @@ use Contao\Input;
 class FormCompiler
 {
     /**
-     * @param FormFieldModel[] $fields
+     * @param FormFieldModel[] $currentFieldsList
      * @param string           $formFieldId
      * @param Form             $form
      *
      * @return FormFieldModel[]
      */
-    public function onCompileFormFields(array $fields, $formFieldId, $form)
+    public function onCompileFormFields(array $currentFieldsList, $formFieldId, $form)
     {
         $offset = 0;
         $indexFrom = 0;
         $level = 0;
 
-        $defaultFieldCount = count(array_values($fields));
+        $defaultFieldCount = count(array_values($currentFieldsList));
 
-        foreach (array_values($fields) as $index => $fieldModel) {
-            if (('fieldset' === $fieldModel->type && 'fsStart' === $fieldModel->fsType) || 'fieldsetStart' === $fieldModel->type) {
-                // ignore fieldsets in front of and after the multi form groups
-                if (0 === $level && !$fieldModel->multi_form_group) {
-                    continue;
-                }
+        $newFieldsList = [];
+        $multiFormGroupFields = [];
 
-                if ($fieldModel->multi_form_group) {
-                    $indexFrom = $index;
-                }
+        foreach (array_values($currentFieldsList) as $index => $fieldModel) {
+            if ('fieldsetStart' === $fieldModel->type
+                || ('fieldset' === $fieldModel->type && 'fsStart' === $fieldModel->fsType)
+            ) {
                 ++$level;
-
-                continue;
             }
 
-            if (('fieldset' === $fieldModel->type && 'fsStop' === $fieldModel->fsType) || 'fieldsetStop' === $fieldModel->type) {
+            if (0 === $level) {
+                $newFieldsList[] = $fieldModel;
+            } else {
+                $multiFormGroupFields[] = $fieldModel;
+            }
+
+            if ('fieldsetStop' === $fieldModel->type
+                || ('fieldset' === $fieldModel->type && 'fsStop' === $fieldModel->fsType)
+            ) {
                 --$level;
+
                 if (0 === $level) {
-                    $length = $index - $indexFrom + 1;
-                    $multipliedFields = $this->multiplyFields(
-                        \array_slice($fields, $offset + $indexFrom, $length)
+                    $newFieldsList = array_merge(
+                        $newFieldsList,
+                        $this->multiplyFields(
+                            $multiFormGroupFields
+                        )
                     );
 
-                    // remove existing fields and replace them with the new fields
-                    array_splice($fields, $offset + $indexFrom, $length, $multipliedFields);
-
-                    $offset += count(array_values($fields)) - $defaultFieldCount;
+                    $multiFormGroupFields = [];
                 }
-
-                continue;
             }
         }
 
-        return $fields;
+        return $newFieldsList;
     }
 
     /**
@@ -76,6 +77,10 @@ class FormCompiler
      */
     private function multiplyFields($fields)
     {
+        if (!array_key_exists(0, $fields)) {
+            return [];
+        }
+
         $groupId = $fields[0]->id;
 
         // tag first field
@@ -84,6 +89,7 @@ class FormCompiler
         $groupCount = $this->getGroupCount($groupId);
 
         $multipliedFields = [];
+
         for ($i = 0; $i < $groupCount; ++$i) {
             foreach ($fields as $field) {
                 $multipliedField = clone $field;

@@ -26,20 +26,17 @@ class FormCompiler
      */
     public function onCompileFormFields(array $currentFieldsList, $formFieldId, $form)
     {
-        $offset = 0;
-        $indexFrom = 0;
         $level = 0;
-
-        $defaultFieldCount = count(array_values($currentFieldsList));
-
         $newFieldsList = [];
         $multiFormGroupFields = [];
 
-        foreach (array_values($currentFieldsList) as $index => $fieldModel) {
+        foreach (array_values($currentFieldsList) as $fieldModel) {
             if ('fieldsetStart' === $fieldModel->type
                 || ('fieldset' === $fieldModel->type && 'fsStart' === $fieldModel->fsType)
             ) {
-                ++$level;
+                if ($fieldModel->multi_form_group) {
+                    ++$level;
+                }
             }
 
             if (0 === $level) {
@@ -51,7 +48,9 @@ class FormCompiler
             if ('fieldsetStop' === $fieldModel->type
                 || ('fieldset' === $fieldModel->type && 'fsStop' === $fieldModel->fsType)
             ) {
-                --$level;
+                if ($level > 0) {
+                    --$level;
+                }
 
                 if (0 === $level) {
                     $newFieldsList = array_merge(

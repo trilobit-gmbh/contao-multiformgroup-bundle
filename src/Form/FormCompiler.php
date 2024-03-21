@@ -6,7 +6,6 @@ declare(strict_types=1);
  * @copyright  trilobit GmbH
  * @author     trilobit GmbH <https://github.com/trilobit-gmbh>
  * @license    LGPL-3.0-or-later
- * @link       http://github.com/trilobit-gmbh/contao-multiformgroup-bundle
  */
 
 namespace Trilobit\ContaoMultiFormGroup\Form;
@@ -19,12 +18,10 @@ class FormCompiler
 {
     /**
      * @param FormFieldModel[] $currentFieldsList
-     * @param string           $formFieldId
-     * @param Form             $form
      *
      * @return FormFieldModel[]
      */
-    public function onCompileFormFields(array $currentFieldsList, $formFieldId, $form)
+    public function onCompileFormFields(array $currentFieldsList, string $formFieldId, Form $form)
     {
         $level = 0;
         $newFieldsList = [];
@@ -76,7 +73,7 @@ class FormCompiler
      */
     private function multiplyFields($fields)
     {
-        if (!array_key_exists(0, $fields)) {
+        if (!\array_key_exists(0, $fields)) {
             return [];
         }
 
@@ -108,8 +105,6 @@ class FormCompiler
     /**
      * Return the number of groups to be shown.
      *
-     * @param $groupId
-     *
      * @return int
      */
     private function getGroupCount($groupId)
@@ -121,9 +116,6 @@ class FormCompiler
 
     /**
      * Helper: Generate the suffixed identifier.
-     *
-     * @param $name
-     * @param $groupSuffix
      *
      * @return string
      */
